@@ -119,7 +119,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Trigger Render deploy hook
-        if: ${{ secrets.RENDER_DEPLOY_HOOK_URL != '' }}
         run: |
           set -euo pipefail
           echo "Triggering Render deploy hook…"
