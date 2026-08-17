@@ -17,6 +17,10 @@ RUN go build -ldflags "-s -w" -o /out/server ./cmd/server
 FROM gcr.io/distroless/static-debian12:nonroot
 WORKDIR /app
 COPY --from=build /out/server /app/server
+# .env is generated in CI from .env.example + GitHub secrets and baked into
+# the image. .env.example is copied as a fallback for local builds.
+COPY --from=build /src/.env /app/.env
+COPY --from=build /src/.env.example /app/.env.example
 USER nonroot:nonroot
 EXPOSE 8080
 ENTRYPOINT ["/app/server"]

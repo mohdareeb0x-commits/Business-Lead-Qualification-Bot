@@ -85,6 +85,24 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Create .env from secrets
+        # Render .env.example as a template and substitute each key with the
+        # matching secret. Missing secrets are left blank so the line is still
+        # present (some apps treat an empty value differently from a missing
+        # key, and we want the key set either way).
+        run: |
+          set -euo pipefail
+          cp .env.example .env
+          set_kv() { sed -i "s|^$1=.*|$1=$2|" .env; }
+          set_kv MONGODB_URI            "${{ secrets.MONGODB_URI }}"
+          set_kv MONGODB_DATABASE       "${{ secrets.MONGODB_DATABASE }}"
+          set_kv TELEGRAM_BOT_TOKEN     "${{ secrets.TELEGRAM_BOT_TOKEN }}"
+          set_kv TELEGRAM_ADMIN_CHAT_ID "${{ secrets.TELEGRAM_ADMIN_CHAT_ID }}"
+          set_kv TELEGRAM_WEBHOOK_SECRET "${{ secrets.TELEGRAM_WEBHOOK_SECRET }}"
+          set_kv SERVER_PORT            "${{ secrets.SERVER_PORT }}"
+          echo "--- generated .env ---"
+          cat .env
+
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
